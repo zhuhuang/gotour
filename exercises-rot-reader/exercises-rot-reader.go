@@ -13,24 +13,23 @@ type rot13Reader struct {
 
 func (r13 rot13Reader) Read(b []byte) (int, error) {
 	bytes := make([]byte, len(b))
-	for {
-		_, err := r13.r.Read(bytes)
-		if err == io.EOF {
-			break
-		}
-	}
+	n, err := r13.r.Read(bytes)
 
 	for i := range bytes {
-		if unicode.IsUpper(rune(bytes[i])) {
-			b[i] = 'A' + (bytes[i] - 'A' + 13) % 26
-		} else if unicode.IsLower(rune(bytes[i])) {
-			b[i] = 'a' + (bytes[i] - 'a' + 13) % 26
-		} else {
-			b[i] =  bytes[i]
-		}
+		b[i] = rot13(bytes[i])
 	}
 
-	return len(b), nil
+	return n, err
+}
+
+func rot13(b byte) byte {
+	if unicode.IsUpper(rune(b)) {
+		return 'A' + (b - 'A' + 13) % 26
+	} else if unicode.IsLower(rune(b)) {
+		return 'a' + (b - 'a' + 13) % 26
+	} else {
+		return b
+	}
 }
 
 func main() {
